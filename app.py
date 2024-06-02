@@ -13,8 +13,6 @@ def home():
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>YouTube Downloader</title>
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-            <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         </head>
         <body>
@@ -32,6 +30,15 @@ def home():
                             <option value="mp3">MP3</option>
                         </select>
                         <label for="format">Select Format</label>
+                    </div>
+                    <div class="input-field">
+                        <select name="resolution" id="resolution" required>
+                            <option value="" disabled selected>Choose resolution</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                            <option value="360p">360p</option>
+                        </select>
+                        <label for="resolution">Select Resolution</label>
                     </div>
                     <div class="center-align">
                         <button type="submit" class="btn waves-effect waves-light">Download</button>
@@ -52,12 +59,13 @@ def home():
 @app.route('/download', methods=['POST'])
 def download_video():
     url = request.form['url']
-    file_format = request.form['format']
+    format = request.form['format']
+    resolution = request.form['resolution']
     
     yt = YouTube(url)
-    if file_format == 'mp4':
-        stream = yt.streams.get_highest_resolution()
-        file_extension = '.mp4'
+    stream = yt.streams.filter(res=resolution).first()
+    if format == 'mp4':
+        file_extension = '.' + stream.mime_type.split('/')[1]
     else:
         stream = yt.streams.filter(only_audio=True).first()
         file_extension = '.mp3'
@@ -70,5 +78,5 @@ def download_video():
     return send_file(new_file, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8000)
 
