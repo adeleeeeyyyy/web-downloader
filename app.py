@@ -63,6 +63,7 @@ def download_video():
     resolution = request.form['resolution']
     
     yt = YouTube(url)
+    title = yt.title
     stream = yt.streams.filter(res=resolution).first()
     if format == 'mp4':
         file_extension = '.' + stream.mime_type.split('/')[1]
@@ -70,7 +71,7 @@ def download_video():
         stream = yt.streams.filter(only_audio=True).first()
         file_extension = '.mp3'
     
-    output_file = stream.download(filename='downloaded_video')
+    output_file = stream.download(filename=title)
     base, ext = os.path.splitext(output_file)
     new_file = base + file_extension
     os.rename(output_file, new_file)
@@ -78,5 +79,5 @@ def download_video():
     return send_file(new_file, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8000)
+    app.run(debug=True, port=8100)
 
